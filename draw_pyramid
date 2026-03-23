@@ -1,0 +1,38 @@
+from graphics import Canvas
+import random
+
+CANVAS_WIDTH = 600      # Width of drawing canvas in pixels
+CANVAS_HEIGHT = 300     # Height of drawing canvas in pixels
+
+BRICK_WIDTH	= 30        # The width of each brick in pixels
+BRICK_HEIGHT = 12       # The height of each brick in pixels
+BRICKS_IN_BASE = 14     # The number of bricks in the base
+BRICKS_IN_BASE_X= CANVAS_WIDTH//2-((BRICKS_IN_BASE*BRICK_WIDTH)//2)
+def main():
+    canvas = Canvas(CANVAS_WIDTH, CANVAS_HEIGHT)
+    #draw_bricks_BASE(canvas,BRICKS_IN_BASE_X,CANVAS_HEIGHT-BRICK_HEIGHT,"red","yellow")
+    draw_pyramid(canvas,BRICKS_IN_BASE_X,CANVAS_HEIGHT-BRICK_HEIGHT,"red","yellow")
+
+
+def draw_pyramid (canvas,x,y,color1,color2):
+    for row in range(BRICKS_IN_BASE):
+        start_x=BRICKS_IN_BASE_X+row*(BRICK_WIDTH/2)
+        start_y=CANVAS_HEIGHT-BRICK_HEIGHT-row*BRICK_HEIGHT
+        for col in range(BRICKS_IN_BASE-row):
+            x=start_x+col*BRICK_WIDTH
+            draw_bricks(canvas,x,start_y,color1,color2)
+
+
+
+def draw_bricks(canvas,x,y,color1,color2):
+    canvas.create_rectangle(
+        x,
+        y,
+        x+BRICK_WIDTH,
+        y+BRICK_HEIGHT,
+        color=color1,
+        outline=color2
+    )
+
+if __name__ == '__main__':
+    main()
