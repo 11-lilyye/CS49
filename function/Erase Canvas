@@ -1,0 +1,187 @@
+"""
+This program implements an 'eraser' on a canvas. 
+
+The canvas consists of a grid of blue 'cells' which are drawn 
+as rectangles on the screen. We then create an eraser rectangle
+which, when dragged around the canvas, sets all of the rectangles 
+it is in contact with to white.
+"""
+
+"""
+This is a worked example. This code is starter code; you should edit and run it to 
+solve the problem. You can click the blue show solution button on the left to see 
+the answer if you get too stuck or want to check your work!
+"""
+
+from graphics import Canvas
+import time
+    
+CANVAS_WIDTH = 400
+CANVAS_HEIGHT = 400
+
+CELL_SIZE = 40
+ERASER_SIZE = 20
+
+def erase_objects(canvas, eraser):
+    """Erase objects in contact with the eraser"""
+    left_x=canvas.get_left_x(eraser)
+    top_y=canvas.get_top_y(eraser)
+    width=canvas.get_object_width(eraser)
+    height=canvas.get_object_height(eraser)
+    right_x= left_x+width
+    bottom_y=top_y+height
+    objects=canvas.find_overlapping(left_x,top_y,right_x,bottom_y)
+    #print(objects)
+    for object in objects:
+        if object!= eraser:
+            canvas.set_color(object,"white")
+#🧠 CS49 - Erase Canvas 核心理解笔记
+
+【1️⃣ find_overlapping 是什么？】
+objects = canvas.find_overlapping(left_x, top_y, right_x, bottom_y)
+
+👉 作用：
+返回一个“列表（list）”，里面是：
+➡️ 所有在这个矩形区域里的对象（object id）
+
+⚠️ 注意：
+不是“被碰到”
+而是“在这个区域里”
+
+---
+
+【2️⃣ 为什么会包含 eraser 自己？】
+
+👉 因为：
+eraser 本身也在这个矩形区域里
+
+所以返回结果类似：
+objects = [eraser, 方块1, 方块2]
+
+✔️ 是正常现象！！
+
+---
+
+【3️⃣ objects 是什么？】
+
+👉 是一个 list，例如：
+objects = [101, 102, 103]
+
+👉 每个数字 = 一个图形的 ID
+
+---
+
+【4️⃣ for 循环在干嘛？】
+
+for obj in objects:
+
+👉 意思是：
+一个一个处理这个列表里的每个对象
+
+不是数数量 ❌
+是逐个操作 ✔️
+
+---
+
+【5️⃣ 为什么要写这个？】
+
+if obj != eraser:
+
+👉 因为：
+find_overlapping 会把 eraser 自己也返回
+
+👉 所以要过滤掉它：
+不然会把橡皮擦自己也变白 ❌
+
+---
+
+【6️⃣ 擦除逻辑】
+
+canvas.set_color(obj, "white")
+
+👉 把被碰到的方块变成白色
+👉 实现“擦除效果”
+
+---
+
+【7️⃣ 整体逻辑（最重要）】
+
+objects = 被橡皮擦覆盖范围内的所有东西
+
+for obj in objects:
+    如果不是橡皮擦:
+        把它变白（擦掉）
+
+---
+
+【8️⃣ 一句话总结】
+
+👉 find_overlapping = 找“这个区域里所有东西”
+👉 不是判断“谁撞到了谁”
+
+---
+
+【9️⃣ 超直觉类比】
+
+像用手电筒照一个区域：
+
+👉 被照到的所有东西都会被返回
+👉 包括你自己（如果你也在光里）
+
+---
+
+💡 你当前的理解阶段：
+
+已经从「写代码」➡️「理解机制」
+
+这是非常关键的一步🔥
+
+
+
+def main():
+    canvas = Canvas(CANVAS_WIDTH, CANVAS_HEIGHT)
+    
+    num_rows = CANVAS_HEIGHT // CELL_SIZE  # Figure out how many rows of cells we need
+    num_cols = CANVAS_WIDTH // CELL_SIZE   # Figure out how many columns of cells we need
+    
+    # Make a grid of squares based on the number of rows and columns.
+    # The rows and columns along with our cell size help determine where
+    # each individual cell belongs in our grid!
+    for row in range(num_rows):
+        for col in range(num_cols):
+            left_x = col * CELL_SIZE
+            top_y = row * CELL_SIZE
+            right_x = left_x + CELL_SIZE   # The right coordinate of the cell is CELL_SIZE pixels away from the left
+            bottom_y = top_y + CELL_SIZE   # The bottom coordinate of the cell is CELL_SIZE pixels away from the top
+            
+            # Create a single cell in the grid
+            cell = canvas.create_rectangle(left_x, top_y, right_x, bottom_y, 'blue')
+            
+            
+    canvas.wait_for_click()  # Wait for the user to click before creating the eraser
+    last_click_x = canvas.get_mouse_x()
+    last_click_y = canvas.get_mouse_y()  # Get the starting location for the eraser
+    #print(click)
+    # Create our eraser
+    eraser = canvas.create_rectangle(
+        last_click_x, 
+        last_click_y, 
+        last_click_x + ERASER_SIZE, 
+        last_click_y + ERASER_SIZE, 
+        'pink'
+    )
+    
+    while True:
+        # Move the eraser, and erase what it's touching
+        
+        mouse_x = canvas.get_mouse_x()
+        mouse_y = canvas.get_mouse_y()
+        canvas.moveto(eraser, mouse_x, mouse_y)
+        
+        erase_objects(canvas, eraser)  # We need to implement this!
+        
+        time.sleep(0.05)
+
+
+if __name__ == '__main__':
+    main()
